@@ -30,4 +30,14 @@ app_1  | 2021-05-30 13:49:59,337 - __main__ [INFO] last_message.text='7\n8', eve
 # Alternative without docker:
 $ pip3 install -r requirements.txt --user
 $ python3 main.py
+
+# Alternative with systemd unit:
+$ cd ~/.config/systemd/user
+$ cp tg-concat-messages.service .
+# Edit .service file and change WorkingDirectory to where main.py is located.
+$ systemctl --user daemon-reload
+$ systemctl --user enable tg-concat-messages
+$ systemctl --user start tg-concat-messages
+# To view logs:
+$ journalctl --user-unit=tg-concat-messages.service -f
 ```

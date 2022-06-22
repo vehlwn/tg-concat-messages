@@ -1,0 +1,12 @@
+[Unit]
+Description = Telethon-based Telegram client to concatenate consecutive sent text messages and delete link_preview
+
+[Service]
+WorkingDirectory = /home/vehlwn/projects/python/tg-concat-messages
+ExecStart = python3 main.py
+Type = simple
+Restart = on-failure
+RestartSec = 20
+
+[Install]
+WantedBy=default.target

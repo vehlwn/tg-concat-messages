@@ -1,5 +1,5 @@
 config.ini
-*.session
+*.session*
 .mypy_cache/
 .vim/
 .cache/
