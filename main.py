@@ -63,8 +63,9 @@ async def handler(event):
         return
     last_message = last_messages[1]
     last_date = last_message.edit_date or last_message.date
+    me = await client.get_me()
     if (
-        event.from_id == last_message.from_id
+        last_message.sender_id == me.id
         and _should_concat(event)
         and _should_concat(last_message)
         and event.date - last_date <= CONCAT_TIMEOUT
@@ -76,8 +77,8 @@ async def handler(event):
     else:
         logger.info("no")
         if EXPLAIN_CONCAT:
-            if event.from_id != last_message.from_id:
-                logger.info(f"{event.from_id=} != {last_message.from_id=}")
+            if last_message.sender_id != me.id:
+                logger.info(f"{last_message.sender_id=} != {me.id=}")
             elif event.media:
                 logger.info(f"{event.media=}")
             elif event.fwd_from:
