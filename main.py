@@ -58,62 +58,66 @@ def _get_title(chat) -> str:
 @client.on(telethon.events.NewMessage(outgoing=True))
 async def handler(event: telethon.tl.custom.message.Message):
     async with _concat_mutex:
-        chat = await event.get_chat()
-        title = _get_title(chat)
-        logger.info(f"MESSAGE in chat {title}: {event.text}")
-        if isinstance(event.media, telethon.tl.types.MessageMediaWebPage):
-            if config.format_remove_link_preview():
-                logger.info("Deleting link_preview")
-                event = await event.edit(event.text, link_preview=False, file=None)
-            else:
-                logger.info("Ignoring link_preview")
-        last_messages = await _get_messages(event.chat_id, 2)
-        if len(last_messages) < 2:
-            logger.info("Not enough last messages")
-            return
-        last_message = last_messages[1]
-        last_date = last_message.edit_date or last_message.date
-        me = await client.get_me()
-        if (
-            last_message.sender_id == me.id
-            and _should_concat(event)
-            and _should_concat(last_message)
-            and event.date - last_date <= CONCAT_TIMEOUT
-        ):
-            logger.info("Concating")
-            logger.info(f"{last_message.text=}, {event.text=}")
-            await last_message.edit(f"{last_message.text}\n{event.text}")
-            await event.delete(revoke=True)
+        await _mutex_handler(event)
+
+
+async def _mutex_handler(event: telethon.tl.custom.message.Message):
+    chat = await event.get_chat()
+    title = _get_title(chat)
+    logger.info(f"MESSAGE in chat {title}: {event.text}")
+    if isinstance(event.media, telethon.tl.types.MessageMediaWebPage):
+        if config.format_remove_link_preview():
+            logger.info("Deleting link_preview")
+            event = await event.edit(event.text, link_preview=False, file=None)
         else:
-            logger.info("no")
-            if config.concat_explain():
-                if last_message.sender_id != me.id:
-                    logger.info(f"{last_message.sender_id=} != {me.id=}")
-                elif event.media:
-                    logger.info(f"{event.media=}")
-                elif event.fwd_from:
-                    logger.info(f"{event.fwd_from=}")
-                elif event.via_bot_id:
-                    logger.info(f"{event.via_bot_id=}")
-                elif event.reply_to_msg_id:
-                    logger.info(f"{event.reply_to_msg_id=}")
-                elif event.reply_markup:
-                    logger.info(f"{event.reply_markup=}")
-                elif last_message.media:
-                    logger.info(f"{last_message.media=}")
-                elif last_message.fwd_from:
-                    logger.info(f"{last_message.fwd_from=}")
-                elif last_message.via_bot_id:
-                    logger.info(f"{last_message.via_bot_id=}")
-                elif last_message.reply_to_msg_id:
-                    logger.info(f"{last_message.reply_to_msg_id=}")
-                elif last_message.reply_markup:
-                    logger.info(f"{last_message.reply_markup=}")
-                elif event.date - last_date > CONCAT_TIMEOUT:
-                    logger.info(
-                        f"event.date ({event.date}) - last_date ({last_date})"
-                        f" > {CONCAT_TIMEOUT}"
-                    )
+            logger.info("Ignoring link_preview")
+    last_messages = await _get_messages(event.chat_id, 2)
+    if len(last_messages) < 2:
+        logger.info("Not enough last messages")
+        return
+    last_message = last_messages[1]
+    last_date = last_message.edit_date or last_message.date
+    me = await client.get_me()
+    if (
+        last_message.sender_id == me.id
+        and _should_concat(event)
+        and _should_concat(last_message)
+        and event.date - last_date <= CONCAT_TIMEOUT
+    ):
+        logger.info("Concating")
+        logger.info(f"{last_message.text=}, {event.text=}")
+        await last_message.edit(f"{last_message.text}\n{event.text}")
+        await event.delete(revoke=True)
+    else:
+        logger.info("no")
+        if config.concat_explain():
+            if last_message.sender_id != me.id:
+                logger.info(f"{last_message.sender_id=} != {me.id=}")
+            elif event.media:
+                logger.info(f"{event.media=}")
+            elif event.fwd_from:
+                logger.info(f"{event.fwd_from=}")
+            elif event.via_bot_id:
+                logger.info(f"{event.via_bot_id=}")
+            elif event.reply_to_msg_id:
+                logger.info(f"{event.reply_to_msg_id=}")
+            elif event.reply_markup:
+                logger.info(f"{event.reply_markup=}")
+            elif last_message.media:
+                logger.info(f"{last_message.media=}")
+            elif last_message.fwd_from:
+                logger.info(f"{last_message.fwd_from=}")
+            elif last_message.via_bot_id:
+                logger.info(f"{last_message.via_bot_id=}")
+            elif last_message.reply_to_msg_id:
+                logger.info(f"{last_message.reply_to_msg_id=}")
+            elif last_message.reply_markup:
+                logger.info(f"{last_message.reply_markup=}")
+            elif event.date - last_date > CONCAT_TIMEOUT:
+                logger.info(
+                    f"event.date ({event.date}) - last_date ({last_date})"
+                    f" > {CONCAT_TIMEOUT}"
+                )
 
 
 async def main():
