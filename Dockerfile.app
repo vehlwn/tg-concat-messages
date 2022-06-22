@@ -1,11 +1,9 @@
 FROM python:3.9.5-alpine
 
-WORKDIR /home/app
-RUN adduser -D app
-USER app:app
+WORKDIR /app
 
-COPY --chown=app:app requirements.txt ./
-RUN pip install -r requirements.txt --disable-pip-version-check --no-warn-script-location --user
+COPY requirements.txt ./
+RUN pip install --requirement requirements.txt --disable-pip-version-check --no-warn-script-location
 
-COPY --chown=app:app main.py app_settings.py config.ini client.session ./
+COPY main.py app_settings.py ./
 ENTRYPOINT python main.py

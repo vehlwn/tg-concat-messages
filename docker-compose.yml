@@ -4,4 +4,8 @@ services:
     build:
       context: ./
       dockerfile: Dockerfile.app
+
     restart: always
+    volumes:
+      - ./client.session:/app/client.session
+      - ./config.ini:/app/config.ini:ro
