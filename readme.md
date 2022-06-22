@@ -28,5 +28,6 @@ app_1  | 2021-05-30 13:49:59,337 - __main__ [INFO] Concating
 app_1  | 2021-05-30 13:49:59,337 - __main__ [INFO] last_message.text='7\n8', event.text='9'
 
 # Alternative without docker:
+$ pip3 install -r requirements.txt --user
 $ python3 main.py
 ```
