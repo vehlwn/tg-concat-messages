@@ -3,3 +3,4 @@ config.ini
 .mypy_cache/
 .vim/
 .cache/
+__pycache__/

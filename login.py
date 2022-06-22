@@ -1,20 +1,17 @@
 import logging
 import telethon
 
-import config_parser_factory
+import app_settings
 
-config = config_parser_factory.create_parser()
-config.read("config.ini")
+config = app_settings.ApplicationSettings()
 
 logger = logging.getLogger(__name__)
-logging.basicConfig(format=config["logger"]["format"])
+logging.basicConfig(format=config.logger_format())
 logger.setLevel(logging.DEBUG)
 
-API_ID = config["telegram"]["api_id"]
-API_HASH = config["telegram"]["api_hash"]
-PHONE = config["telegram"]["phone"]
-
-client = telethon.TelegramClient("client", API_ID, API_HASH)
+client = telethon.TelegramClient(
+    "client", config.telegram_api_id(), config.telegram_api_hash()
+)
 
 
 async def main():
@@ -24,8 +21,8 @@ async def main():
         logger.info("Already logged in. Exitting")
     else:
         logger.info("Not authorized. Sending code request")
-        await client.send_code_request(PHONE)
-        await client.sign_in(PHONE, input("Enter the code: "))
+        await client.send_code_request(config.telegram_phone())
+        await client.sign_in(config.telegram_phone(), input("Enter the code: "))
         logger.info("Logged in")
 
 

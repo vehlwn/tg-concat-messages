@@ -3,20 +3,19 @@ import logging
 import sys
 import telethon
 
-import config_parser_factory
+import app_settings
 
-config = config_parser_factory.create_parser()
-config.read("config.ini")
+config = app_settings.ApplicationSettings()
 
 logger = logging.getLogger(__name__)
-logging.basicConfig(format=config["logger"]["format"])
+logging.basicConfig(format=config.logger_format())
 logger.setLevel(logging.DEBUG)
 
-API_ID = config["telegram"]["api_id"]
-API_HASH = config["telegram"]["api_hash"]
-EXPLAIN_CONCAT = config.getboolean("concat", "explain")
-CONCAT_TIMEOUT = datetime.timedelta(seconds=int(config["concat"]["timeout_s"]))
-client = telethon.TelegramClient("client", API_ID, API_HASH)
+EXPLAIN_CONCAT = config.concat_explain()
+CONCAT_TIMEOUT = datetime.timedelta(seconds=config.concat_timeout_s())
+client = telethon.TelegramClient(
+    "client", config.telegram_api_id(), config.telegram_api_hash()
+)
 
 
 async def _get_messages(chat_id, limit):
@@ -76,7 +75,7 @@ async def handler(event):
         await event.delete(revoke=True)
     else:
         logger.info("no")
-        if EXPLAIN_CONCAT:
+        if config.concat_explain():
             if last_message.sender_id != me.id:
                 logger.info(f"{last_message.sender_id=} != {me.id=}")
             elif event.media:

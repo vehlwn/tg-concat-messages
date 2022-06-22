@@ -7,5 +7,5 @@ USER app:app
 COPY --chown=app:app requirements.txt ./
 RUN pip install -r requirements.txt --disable-pip-version-check --no-warn-script-location --user
 
-COPY --chown=app:app main.py config_parser_factory.py config.ini client.session ./
+COPY --chown=app:app main.py app_settings.py config.ini client.session ./
 ENTRYPOINT python main.py
