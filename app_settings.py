@@ -17,9 +17,6 @@ class ApplicationSettings:
     def logger_format(self) -> str:
         return _config["logger"]["format"]
 
-    def concat_explain(self) -> bool:
-        return _config.getboolean("concat", "explain")
-
     def concat_timeout_s(self) -> int:
         return int(_config["concat"]["timeout_s"])
 
