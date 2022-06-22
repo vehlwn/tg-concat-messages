@@ -22,3 +22,6 @@ class ApplicationSettings:
 
     def concat_timeout_s(self) -> int:
         return int(_config["concat"]["timeout_s"])
+
+    def format_remove_link_preview(self) -> bool:
+        return _config.getboolean("format", "remove_link_preview")

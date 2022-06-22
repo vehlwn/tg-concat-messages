@@ -40,12 +40,14 @@ def _should_concat(event) -> bool:
 def _get_title(chat) -> str:
     ret = ""
     if isinstance(chat, telethon.tl.types.User):
+        comma = ""
         if chat.username:
-            ret += "@" + chat.username + " "
+            ret += "@" + chat.username
+            comma = " "
         if chat.first_name:
-            ret += chat.first_name + " "
+            ret += comma + chat.first_name
         if chat.last_name:
-            ret += chat.last_name
+            ret += comma + chat.last_name
     elif isinstance(chat, telethon.tl.types.Chat) or isinstance(
         chat, telethon.tl.types.Channel
     ):
@@ -54,11 +56,17 @@ def _get_title(chat) -> str:
 
 
 @client.on(telethon.events.NewMessage(outgoing=True))
-async def handler(event):
+async def handler(event: telethon.tl.custom.message.Message):
     async with _concat_mutex:
         chat = await event.get_chat()
         title = _get_title(chat)
-        logger.info(f"EVENT in chat {title}")
+        logger.info(f"MESSAGE in chat {title}: {event.text}")
+        if isinstance(event.media, telethon.tl.types.MessageMediaWebPage):
+            if config.format_remove_link_preview():
+                logger.info("Deleting link_preview")
+                event = await event.edit(event.text, link_preview=False, file=None)
+            else:
+                logger.info("Ignoring link_preview")
         last_messages = await _get_messages(event.chat_id, 2)
         if len(last_messages) < 2:
             logger.info("Not enough last messages")
