@@ -1,6 +1,6 @@
 # tg-concat-messages
 
-Telethon-based Telegram client to concatenate consecutive sent text messages.
+Telethon-based Telegram client to concatenate consecutive sent text messages and delete link_preview.
 
 ## Build
 
