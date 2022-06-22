@@ -9,3 +9,4 @@ services:
     volumes:
       - ./client.session:/app/client.session
       - ./config.ini:/app/config.ini:ro
+    restart: on-failure
