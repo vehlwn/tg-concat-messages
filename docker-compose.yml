@@ -3,9 +3,9 @@ services:
   app:
     build:
       context: ./
-      dockerfile: Dockerfile.app
-
-    restart: always
+    logging:
+      options:
+        max-size: "${DOCKER_LOGS_MAX_SIZE:-100M}"
     volumes:
       - ./client.session:/app/client.session
       - ./config.ini:/app/config.ini:ro
