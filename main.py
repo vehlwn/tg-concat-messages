@@ -19,9 +19,11 @@ client = telethon.TelegramClient(
 _concat_mutex = asyncio.Lock()
 
 
-async def _get_messages(chat_id, limit):
+async def _get_messages(chat_id, *, limit, offset_id):
     ret = []
-    async for message in client.iter_messages(chat_id, limit=limit):
+    async for message in client.iter_messages(
+        chat_id, limit=limit, offset_id=offset_id
+    ):
         ret.append(message)
     return ret
 
@@ -71,11 +73,13 @@ async def new_message_handler(event: telethon.tl.custom.message.Message):
         title = _get_title(chat)
         logger.info(f"NEW MESSAGE in chat {title}: {event.text}")
         event = await _process_link_preview(event)
-        last_messages = await _get_messages(event.chat_id, 2)
-        if len(last_messages) < 2:
+        last_messages = await _get_messages(
+            event.chat_id, limit=1, offset_id=event.id
+        )
+        if len(last_messages) == 0:
             logger.info("Not enough last messages")
             return
-        last_message = last_messages[1]
+        last_message = last_messages[0]
         last_date = last_message.edit_date or last_message.date
         me = await client.get_me()
         if (
